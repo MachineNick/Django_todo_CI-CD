@@ -2,23 +2,27 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'develop', url: 'https://github.com/MachineNick/Django_todo_CI-CD.git'
-            }
-        }
-
         stage('Build') {
             steps {
-                echo "Building the Django app..."
-                sh 'python3 -m pip install -r requirements.txt'
+                sh 'docker build -t todo-app .'
             }
         }
 
-        stage('Test') {
+        stage('Run Container') {
             steps {
-                echo "Running tests..."
-                sh 'python3 manage.py test'
+                sh 'docker run -d --name todo-container -p 8000:8000 todo-app'
+            }
+        }
+
+        stage('Apply Migrations') {
+            steps {
+                sh 'docker exec todo-container python manage.py migrate'
+            }
+        }
+
+        stage('Collect Static') {
+            steps {
+                sh 'docker exec todo-container python manage.py collectstatic --noinput'
             }
         }
     }
