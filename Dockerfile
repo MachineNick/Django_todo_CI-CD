@@ -21,7 +21,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Run migrations at build time (optional, better to run at runtime in entrypoint)
-RUN python manage.py migrate || true
 
 # Start the app
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "todo.wsgi:application"]
